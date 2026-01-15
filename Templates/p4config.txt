@@ -1,0 +1,1 @@
+P4CLIENT=buildmachine_build_generic
