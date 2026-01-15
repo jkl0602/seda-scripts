@@ -1,0 +1,81 @@
+<?xml version='1.0'?>
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.epicgames.com/BuildGraph ../Schema.xsd">
+
+    <!-- Environment Variables and Options -->
+    <Option Name="GamePath" Default=""
+        Description="Path to the .uproject file (directory or full path)" />
+    <Option Name="EnginePath" Default="" Description="Path to the Unreal Engine directory" />
+    <Option Name="OutputDir" Default="" Description="Root output directory for artifacts" />
+    <Option Name="BuildNumber" Default="0" Description="Build number for versioning" />
+    <Option Name="Clean" Default="false" Description="Whether to clean build" />
+    <Option Name="IniOverrides" Default="" Description="Additional INI overrides" />
+
+    <!-- Arguments for RunUAT -->
+    <Property Name="UAT" Value="$(EnginePath)/Build/BatchFiles/RunUAT.bat" />
+    <Property Name="EditorCmd" Value="$(EnginePath)/Binaries/Win64/UnrealEditor-Cmd.exe" />
+    <Property Name="ProjectFile" Value="$(GamePath)/Elpis.uproject" />
+
+    <Agent Name="BuildAgent" Type="Win64">
+
+        <!-- 1. Init Data Table -->
+        <Node Name="InitData">
+            <Spawn Exe="$(EditorCmd)"
+                Arguments="$(ProjectFile) -run=InitDataTableCommandlet -SCCProvider=None" />
+        </Node>
+
+        <!-- 2. Compile Editor and Game (Shipping) -->
+        <Node Name="Compile" Requires="InitData">
+            <Compile Target="Elpis" Platform="Win64" Configuration="Shipping"
+                Arguments="-Project=$(ProjectFile)" />
+        </Node>
+
+        <!-- 3. Cook, Stage, Pak, Archive -->
+        <Node Name="BuildCookRun" Requires="Compile">
+            <!-- Construct Arguments -->
+            <!-- Note: -noP4 is important -->
+            <!-- Note: -nocompile because we compiled in previous node -->
+            <Property Name="CookArgs"
+                Value="-project=$(ProjectFile) -noP4 -platform=Win64 -clientconfig=Shipping -serverconfig=Shipping -nocompile -cook -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap" />
+            <Property Name="StageArgs"
+                Value="-stage -pak -compressed -archive -archivedirectory=$(OutputDir)" />
+            <Property Name="OtherArgs"
+                Value="-multiprocess -unattended -gc.AllowParallelGC=0 -LogCmds=&quot;global LogPhysicsCore VeryVerbose, global LogChaos VeryVerbose&quot; $(IniOverrides)" />
+            <Property Name="CleanArg" Value="" />
+            <Do If="$(Clean)">
+                <Property Name="CleanArg" Value="-clean" />
+            </Do>
+
+            <Spawn Exe="$(UAT)"
+                Arguments="BuildCookRun $(CookArgs) $(StageArgs) $(OtherArgs) $(CleanArg)" />
+        </Node>
+
+        <!-- 4. Upload Sentry Symbols -->
+        <Node Name="UploadSymbols" Requires="Compile">
+            <!-- Log in and Upload -->
+            <Spawn
+                Exe="$(GamePath)/Plugins/Sentry/Source/ThirdParty/CLI/sentry-cli-Windows-x86_64.exe"
+                Arguments="login --auth-token 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" />
+            <Spawn
+                Exe="$(GamePath)/Plugins/Sentry/Source/ThirdParty/CLI/sentry-cli-Windows-x86_64.exe"
+                Arguments="debug-files upload -o seconddive -p covenant-dev $(GamePath)/Binaries/Win64" />
+        </Node>
+
+        <!-- 5. Finalize Artifacts (Rename and Zip) -->
+        <Node Name="PackageArtifacts" Requires="BuildCookRun;UploadSymbols">
+            <!-- BuildCookRun archives to $(OutputDir)/Windows (or similar). The original script
+            renamed Windows to Elpis. -->
+            <!-- We assume $(OutputDir)/Windows exists. Rename it to Elpis. -->
+            <Spawn Exe="cmd.exe" Arguments="/c ren &quot;$(OutputDir)\Windows&quot; Elpis" />
+
+            <!-- Copy version.txt if it exists in GamePath -->
+            <Copy From="$(GamePath)/version.txt" To="$(OutputDir)/Elpis/version.txt" />
+
+            <!-- Zip -->
+            <Zip FromDir="$(OutputDir)/Elpis" ZipFile="$(OutputDir)/$(BuildNumber).zip" />
+        </Node>
+
+    </Agent>
+
+</BuildGraph>

@@ -1,0 +1,114 @@
+pipeline {
+    agent { label 'render-pc' }
+    
+    options {
+        skipDefaultCheckout(false)
+        timestamps()
+    }
+
+    stages {
+        stage('Checkout & Setup') {
+            steps {
+                script {
+                    doCheckoutAndSetup()
+                }
+            }
+        }
+
+        stage('BuildGraph') {
+            steps {
+                script {
+                    runBuildGraph()
+                }
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                script {
+                    doArchive()
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                doCleanup()
+            }
+        }
+        success {
+            googlechatnotification url: 'id:google_chat_build_noti', message: "Shipping ${env.BUILD_NUMBER} Succeeded"
+        }
+        failure {
+            googlechatnotification url: 'id:google_chat_build_noti', message: "Shipping ${env.BUILD_NUMBER} failed"
+        }
+    }
+}
+
+// -------------------------------------------------------------------------
+// Helper Functions
+// -------------------------------------------------------------------------
+
+def doCheckoutAndSetup() {
+    echo "Checking workspace: ${env.WORKSPACE}"
+    
+    // Generate version.txt
+    try {
+        bat 'p4 changes -m 1 -s submitted > version.txt & type version.txt'
+    } catch (e) {
+         echo "Warning: Failed to generate version.txt: ${e}"
+    }
+
+    // P4 Edit ByteData
+    bat 'p4 edit //elpis/mainline/ElpisClient/Content/Elpis2/ByteData/...'
+}
+
+def runBuildGraph() {
+    def cleanArg = params.SKIP_CLEAN ? "false" : "true"
+    def iniOverrides = env.INI_OVERRIDES ?: ""
+    
+    // Clean output if ensuring clean build
+    if (cleanArg == "true") {
+        bat "if exist \"${env.SHP_OUT_DIR}\\Elpis\" rmdir /s /q \"${env.SHP_OUT_DIR}\\Elpis\""
+        bat "if exist \"${env.SHP_OUT_DIR}\\Windows\" rmdir /s /q \"${env.SHP_OUT_DIR}\\Windows\""
+    }
+    
+    // Run BuildGraph
+    bat """
+        "${env.ENGINE_PATH}\\Build\\BatchFiles\\RunUAT.bat" BuildGraph ^
+        -Script="${env.WORKSPACE}\\Scripts\\Build\\BuildGraph.xml" ^
+        -Target="PackageArtifacts" ^
+        -set:GamePath="${env.GAME_PATH}" ^
+        -set:EnginePath="${env.ENGINE_PATH}" ^
+        -set:OutputDir="${env.SHP_OUT_DIR}" ^
+        -set:BuildNumber="${env.BUILD_NUMBER}" ^
+        -set:Clean=${cleanArg} ^
+        -set:IniOverrides="${iniOverrides}" ^
+        -multiprocess
+    """
+}
+
+def doArchive() {
+    def zipPath = "${env.SHP_OUT_DIR}\\${env.BUILD_NUMBER}.zip"
+    
+    if (fileExists(zipPath)) {
+        archiveArtifacts artifacts: "${env.SHP_OUT_DIR}/${env.BUILD_NUMBER}.zip", fingerprint: true
+        
+        if (params.COPY_ARTIFACT == true) {
+            bat "copy \"${zipPath}\" \"${env.OUT_DRV}\\Elpis\\\""
+            googlechatnotification url: 'id:google_chat_build_noti', message: "Shipping ${env.BUILD_NUMBER} Compression Complete"
+        }
+    } else {
+        echo "Warning: Artifact zip not found at ${zipPath}"
+    }
+}
+
+def doCleanup() {
+    // Revert P4 changes
+    bat 'p4 revert -c default //...'
+    
+    // Cleanup Output Directory
+    bat "if exist \"${env.SHP_OUT_DIR}\\Elpis\" rmdir /s /q \"${env.SHP_OUT_DIR}\\Elpis\""
+}

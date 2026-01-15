@@ -1,0 +1,94 @@
+pipeline { 
+    agent { label 'renderpc' }
+    stages {
+        stage('Perforce Sync') {
+            steps {
+                dir("$GAME_PATH") {
+                    bat ("""
+                        p4 login < $PASSWD
+                        p4 reconcile -m
+                        p4 sync
+                        p4 changes -m 1 -s submitted > version.txt & type version.txt
+                        p4 edit "//elpis/mainline/ElpisClient/Content/Elpis2/ByteData/..."
+                        """)
+                }
+            }
+        }
+        stage('Cleanup') {
+            steps {
+                script {
+                    try {
+                        if (params.SKIP_CLEAN != true) {
+                            dir("$GAME_PATH") {
+                                bat ("""rmdir /S/Q Build Intermediate """)
+                            }
+                        }
+                    }
+                    catch (e) {
+
+                    }
+                }
+            }
+        }
+        stage('BuildCookRun') {
+            steps {
+                script {
+                    def CLEAN = "-clean"
+                    if (params.SKIP_CLEAN == true) {
+                        CLEAN = ""
+                    }
+                    bat ("""
+                        "${ENGINE_PATH}\\Binaries\\Win64\\UnrealEditor-Cmd.exe" $GAME_PATH\\Elpis.uproject -run=InitDataTableCommandlet -SCCProvider=None
+                        "${ENGINE_PATH}\\Build\\BatchFiles\\RunUAT" BuildCookRun -project=$GAME_PATH\\Elpis.uproject -noP4 -platform=Win64 -clientconfig=Shipping -serverconfig=Shipping $CLEAN -build -compile -cook -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap -stage -pak -compressed -archive -archivedirectory=$SHP_OUT_DIR -multiprocess -unattended $INI_OVERRIDES -gc.AllowParallelGC=0 -LogCmds="global LogPhysicsCore VeryVerbose, global LogChaos VeryVerbose"
+                        """ )
+                    dir("$GAME_PATH") {
+                        if (true) {
+                            bat('''
+                                Plugins\\Sentry\\Source\\ThirdParty\\CLI\\sentry-cli-Windows-x86_64.exe login --auth-token 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
+                                Plugins\\Sentry\\Source\\ThirdParty\\CLI\\sentry-cli-Windows-x86_64.exe debug-files upload -o seconddive -p covenant-dev Binaries\\Win64
+                                ''')
+                        }
+                    }
+                }
+            }
+        }
+        stage('Archive') {
+            steps {
+                bat ("""
+                    $OUT_DRV
+                    cd $SHP_OUT_DIR
+                    ren Windows Elpis
+                    copy $GAME_PATH\\version.txt $SHP_OUT_DIR\\Elpis
+                    """)
+                bat 'bz c -y -fmt:zip -l:0 %BUILD_NUMBER%.zip %SHP_OUT_DIR%\\Elpis\\'
+                script {
+                    if (params.COPY_ARTIFACT == true) {
+                        bat ("""copy ${BUILD_NUMBER}.zip $OUT_DRV\\Elpis\\""")
+                        googlechatnotification url: 'id:google_chat_build_noti', message:"Shipping ${BUILD_NUMBER} Compression Complete"
+                    }
+                }
+                archiveArtifacts artifacts: "${BUILD_NUMBER}.zip", fingerprint: true
+            }
+        }
+    }
+    post {
+        always {
+            dir("$GAME_PATH") {
+                bat ("""
+                    p4 revert -c default //...
+                    """)
+            }
+            bat ("""
+                $OUT_DRV
+                cd $SHP_OUT_DIR
+                rmdir /s /q Elpis
+                """)
+        }
+        success {
+            googlechatnotification url: 'id:google_chat_build_noti', message:"Shipping ${BUILD_NUMBER} Succeeded"
+        }
+        failure {
+            googlechatnotification url: 'id:google_chat_build_noti', message:"Shipping ${BUILD_NUMBER} failed"
+        }
+    }
+}
