@@ -1,7 +1,5 @@
 <?xml version='1.0'?>
-<BuildGraph xmlns="http://www.epicgames.com/BuildGraph"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.epicgames.com/BuildGraph ../Schema.xsd">
+<BuildGraph>
 
     <!-- Environment Variables and Options -->
     <Option Name="GamePath" Default=""
