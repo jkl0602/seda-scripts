@@ -80,7 +80,7 @@ def runBuildGraph() {
         "${env.ENGINE_PATH}\\Build\\BatchFiles\\RunUAT.bat" BuildGraph ^
         -Script="${env.WORKSPACE}\\Scripts\\Build\\BuildGraph.xml" ^
         -Target="PackageArtifacts" ^
-        -set:GamePath="${env.GAME_PATH}" ^
+        -set:GamePath="${env.WORKSPACE}\\ElpisClient" ^
         -set:EnginePath="${env.ENGINE_PATH}" ^
         -set:OutputDir="${env.SHP_OUT_DIR}" ^
         -set:BuildNumber="${env.BUILD_NUMBER}" ^
