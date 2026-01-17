@@ -29,12 +29,14 @@
         <!-- 2. Cook, Stage, Pak, Archive -->
         <Node Name="BuildCookRun" Requires="InitData">
             <!-- Native BuildGraph Cook Task -->
-            <Cook Project="$(ProjectFile)" Platform="Win64" Configuration="Shipping"
-                Arguments="-noP4 -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap" />
+            <!-- CookAction doesn't have Configuration, it's passed via Arguments -->
+            <Cook Project="$(ProjectFile)" Platform="Win64"
+                Arguments="-clientconfig=Shipping -serverconfig=Shipping -noP4 -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap" />
 
             <!-- Native BuildGraph Stage Task -->
             <!-- Note: Stage logic handles copying binaries and content to Saved/StagedBuilds -->
-            <Stage Project="$(ProjectFile)" Platform="Win64" Configuration="Shipping" />
+            <!-- Stage requires Target (e.g. 'Elpis') -->
+            <Stage Project="$(ProjectFile)" Platform="Win64" Configuration="Shipping" Target="Elpis" />
 
             <!-- Copy to OutputDir -->
             <Copy From="$(GamePath)/Saved/StagedBuilds/Windows/..." To="$(OutputDir)/Windows/..." />
