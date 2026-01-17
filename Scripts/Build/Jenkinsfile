@@ -64,6 +64,13 @@ def doCheckoutAndSetup() {
     // P4 Edit ByteData
     bat 'p4 edit //elpis/mainline/ElpisClient/Content/Elpis2/ByteData/...'
 
+    // Ensure p4config.txt in Workspace root
+    def workspaceP4Config = "${env.WORKSPACE}\\p4config.txt"
+    echo "Creating/Updating p4config.txt at ${env.WORKSPACE}"
+    writeFile file: workspaceP4Config, text: "P4CLIENT=jenkins-${env.NODE_NAME}-${env.JOB_NAME}"
+
+    bat 'p4 set P4CONFIG=p4config.txt'
+
     // Ensure .p4config.txt for DataTable tools
     def dataTablePath = "${env.WORKSPACE}\\ElpisClient\\Tools\\DataTable"
     echo "Creating/Updating .p4config.txt at ${dataTablePath}"
