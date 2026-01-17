@@ -63,6 +63,12 @@ def doCheckoutAndSetup() {
 
     // P4 Edit ByteData
     bat 'p4 edit //elpis/mainline/ElpisClient/Content/Elpis2/ByteData/...'
+
+    // Ensure .p4config.txt for DataTable tools
+    def dataTablePath = "${env.WORKSPACE}\\ElpisClient\\Tools\\DataTable"
+    echo "Creating/Updating .p4config.txt at ${dataTablePath}"
+    bat "if not exist \"${dataTablePath}\" mkdir \"${dataTablePath}\""
+    writeFile file: "${dataTablePath}\\.p4config.txt", text: "P4CLIENT=${env.WORKSPACE}"
 }
 
 def runBuildGraph() {
