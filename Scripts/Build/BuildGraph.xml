@@ -25,14 +25,8 @@
                 Arguments="$(ProjectFile) -run=InitDataTableCommandlet -SCCProvider=None" />
         </Node>
 
-        <!-- 2. Compile Editor and Game (Shipping) -->
-        <Node Name="Compile" Requires="InitData">
-            <Compile Target="Elpis" Platform="Win64" Configuration="Shipping"
-                Arguments="-Project=$(ProjectFile)" />
-        </Node>
-
-        <!-- 3. Cook, Stage, Pak, Archive -->
-        <Node Name="BuildCookRun" Requires="Compile">
+        <!-- 2. Cook, Stage, Pak, Archive -->
+        <Node Name="BuildCookRun" Requires="InitData">
             <!-- Construct Arguments -->
             <!-- Note: -noP4 is important -->
             <!-- Note: -nocompile because we compiled in previous node -->
@@ -51,8 +45,8 @@
                 Arguments="BuildCookRun $(CookArgs) $(StageArgs) $(OtherArgs) $(CleanArg)" />
         </Node>
 
-        <!-- 4. Upload Sentry Symbols -->
-        <Node Name="UploadSymbols" Requires="Compile">
+        <!-- 3. Upload Sentry Symbols -->
+        <Node Name="UploadSymbols" Requires="BuildCookRun">
             <!-- Log in and Upload -->
             <Spawn
                 Exe="$(GamePath)/Plugins/Sentry/Source/ThirdParty/CLI/sentry-cli-Windows-x86_64.exe"
@@ -62,7 +56,7 @@
                 Arguments="debug-files upload -o seconddive -p covenant-dev $(GamePath)/Binaries/Win64" />
         </Node>
 
-        <!-- 5. Finalize Artifacts (Rename and Zip) -->
+        <!-- 4. Finalize Artifacts (Rename and Zip) -->
         <Node Name="PackageArtifacts" Requires="BuildCookRun;UploadSymbols">
             <!-- BuildCookRun archives to $(OutputDir)/Windows (or similar). The original script
             renamed Windows to Elpis. -->
