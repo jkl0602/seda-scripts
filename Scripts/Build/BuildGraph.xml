@@ -26,23 +26,18 @@
         </Node>
 
         <!-- 2. Cook, Stage, Pak, Archive -->
+        <!-- 2. Cook, Stage, Pak, Archive -->
         <Node Name="BuildCookRun" Requires="InitData">
-            <!-- Construct Arguments -->
-            <!-- Note: -noP4 is important -->
-            <!-- Note: -nocompile because we compiled in previous node -->
-            <Property Name="CookArgs"
-                Value="-project=$(ProjectFile) -noP4 -platform=Win64 -clientconfig=Shipping -serverconfig=Shipping -nocompile -cook -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap" />
-            <Property Name="StageArgs"
-                Value="-stage -pak -compressed -archive -archivedirectory=$(OutputDir)" />
-            <Property Name="OtherArgs"
-                Value="-multiprocess -unattended -gc.AllowParallelGC=0 -LogCmds=&quot;global LogPhysicsCore VeryVerbose, global LogChaos VeryVerbose&quot; $(IniOverrides)" />
-            <Property Name="CleanArg" Value="" />
-            <Do If="$(Clean)">
-                <Property Name="CleanArg" Value="-clean" />
-            </Do>
+            <!-- Native BuildGraph Cook Task -->
+            <Cook Project="$(ProjectFile)" Platform="Win64" Configuration="Shipping"
+                Arguments="-noP4 -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap" />
 
-            <Spawn Exe="$(UAT)"
-                Arguments="BuildCookRun $(CookArgs) $(StageArgs) $(OtherArgs) $(CleanArg)" />
+            <!-- Native BuildGraph Stage Task -->
+            <!-- Note: Stage logic handles copying binaries and content to Saved/StagedBuilds -->
+            <Stage Project="$(ProjectFile)" Platform="Win64" Configuration="Shipping" />
+
+            <!-- Copy to OutputDir -->
+            <Copy From="$(GamePath)/Saved/StagedBuilds/Windows/..." To="$(OutputDir)/Windows/..." />
         </Node>
 
         <!-- 3. Upload Sentry Symbols -->
