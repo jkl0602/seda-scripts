@@ -41,7 +41,7 @@
                 ToDir="$(GamePath)/Saved/StagedBuilds" />
 
             <!-- Copy to OutputDir -->
-            <Copy From="$(GamePath)/Saved/StagedBuilds/Windows/" To="$(OutputDir)/Windows/" />
+            <Copy From="$(GamePath)/Saved/StagedBuilds/Windows/*" To="$(OutputDir)/Windows/" />
         </Node>
 
         <!-- 3. Upload Sentry Symbols -->
