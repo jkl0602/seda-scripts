@@ -68,7 +68,7 @@ def doCheckoutAndSetup() {
     def dataTablePath = "${env.WORKSPACE}\\ElpisClient\\Tools\\DataTable"
     echo "Creating/Updating .p4config.txt at ${dataTablePath}"
     bat "if not exist \"${dataTablePath}\" mkdir \"${dataTablePath}\""
-    writeFile file: "${dataTablePath}\\.p4config.txt", text: "P4CLIENT=${env.WORKSPACE}"
+    writeFile file: "${dataTablePath}\\.p4config.txt", text: "P4CLIENT=jenkins-${env.NODE_NAME}-${env.JOB_NAME}"
 }
 
 def runBuildGraph() {
