@@ -38,7 +38,7 @@
             <!-- Stage requires Target (e.g. 'Elpis') and ToDir -->
             <Stage Project="$(ProjectFile)" Platform="Windows" Configuration="Shipping"
                 Target="Elpis"
-                ToDir="$(GamePath)/Saved/StagedBuilds" />
+                ToDir="$(GamePath)/Saved/StagedBuilds/Windows" />
 
             <!-- Copy to OutputDir -->
             <Copy From="$(GamePath)/Saved/StagedBuilds/Windows/..." To="$(OutputDir)/Windows/" />
