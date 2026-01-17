@@ -35,8 +35,9 @@
 
             <!-- Native BuildGraph Stage Task -->
             <!-- Note: Stage logic handles copying binaries and content to Saved/StagedBuilds -->
-            <!-- Stage requires Target (e.g. 'Elpis') -->
-            <Stage Project="$(ProjectFile)" Platform="Win64" Configuration="Shipping" Target="Elpis" />
+            <!-- Stage requires Target (e.g. 'Elpis') and ToDir -->
+            <Stage Project="$(ProjectFile)" Platform="Win64" Configuration="Shipping" Target="Elpis"
+                ToDir="$(GamePath)/Saved/StagedBuilds" />
 
             <!-- Copy to OutputDir -->
             <Copy From="$(GamePath)/Saved/StagedBuilds/Windows/..." To="$(OutputDir)/Windows/..." />
