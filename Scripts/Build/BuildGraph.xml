@@ -1,14 +1,16 @@
 <?xml version='1.0'?>
-<BuildGraph>
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph">
 
     <!-- Environment Variables and Options -->
-    <Option Name="GamePath" Default=""
+    <Option Name="GamePath" DefaultValue="C:\Jenkins\agent_root\workspace\ShippingBuild\ElpisClient"
         Description="Path to the .uproject file (directory or full path)" />
-    <Option Name="EnginePath" Default="" Description="Path to the Unreal Engine directory" />
-    <Option Name="OutputDir" Default="" Description="Root output directory for artifacts" />
-    <Option Name="BuildNumber" Default="0" Description="Build number for versioning" />
-    <Option Name="Clean" Default="false" Description="Whether to clean build" />
-    <Option Name="IniOverrides" Default="" Description="Additional INI overrides" />
+    <Option Name="EnginePath" DefaultValue="C:\Program Files\Epic Games\UE_5.7"
+        Description="Path to the Unreal Engine directory" />
+    <Option Name="OutputDir" DefaultValue="C:\Elpis\Shipping\Out"
+        Description="Root output directory for artifacts" />
+    <Option Name="BuildNumber" DefaultValue="0" Description="Build number for versioning" />
+    <Option Name="Clean" DefaultValue="false" Description="Whether to clean build" />
+    <Option Name="IniOverrides" DefaultValue="" Description="Additional INI overrides" />
 
     <!-- Arguments for RunUAT -->
     <Property Name="UAT" Value="$(EnginePath)/Build/BatchFiles/RunUAT.bat" />

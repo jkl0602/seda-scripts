@@ -38,12 +38,12 @@ pipeline {
                 doCleanup()
             }
         }
-        success {
-            googlechatnotification url: 'id:google_chat_build_noti', message: "Shipping ${env.BUILD_NUMBER} Succeeded"
-        }
-        failure {
-            googlechatnotification url: 'id:google_chat_build_noti', message: "Shipping ${env.BUILD_NUMBER} failed"
-        }
+        // success {
+        //     googlechatnotification url: 'id:google_chat_build_noti', message: "Shipping ${env.BUILD_NUMBER} Succeeded"
+        // }
+        // failure {
+        //     googlechatnotification url: 'id:google_chat_build_noti', message: "Shipping ${env.BUILD_NUMBER} failed"
+        // }
     }
 }
 
@@ -78,7 +78,7 @@ def runBuildGraph() {
     // Run BuildGraph
     bat """
         "${env.ENGINE_PATH}\\Build\\BatchFiles\\RunUAT.bat" BuildGraph ^
-        -Script="${env.WORKSPACE}\\Scripts\\Build\\BuildGraph.xml" ^
+        -Script="${env.WORKSPACE}\\ElpisClient\\BuildScripts\\BuildGraph.xml" ^
         -Target="PackageArtifacts" ^
         -set:GamePath="${env.WORKSPACE}\\ElpisClient" ^
         -set:EnginePath="${env.ENGINE_PATH}" ^
