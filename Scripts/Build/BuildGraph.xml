@@ -39,9 +39,6 @@
 
             <Command Name="BuildCookRun"
                 Arguments="-project=$(ProjectFile) -platform=Win64 -clientconfig=Shipping -serverconfig=Shipping -cook -stage -package -archive -archivedirectory=$(OutputDir) -noP4 -buildmachine -unattended -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap $(CleanArg)" />
-
-            <!-- Copy to OutputDir -->
-            <Copy From="$(GamePath)/Saved/StagedBuilds/..." To="$(OutputDir)/Windows/" />
         </Node>
 
         <!-- 3. Upload Sentry Symbols -->
