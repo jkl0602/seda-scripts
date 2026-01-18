@@ -38,7 +38,7 @@
                 Arguments="-clientconfig=Shipping -serverconfig=Shipping -noP4 -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap" />
 
             <!-- 3. Pak: Pak the cooked content -->
-            <Pak Project="$(ProjectFile)" Platform="Windows" Configuration="Shipping" />
+            <PakFile Project="$(ProjectFile)" Platform="Windows" Configuration="Shipping" />
 
             <!-- 4. Stage: Copy binaries and paks to StagingDirectory -->
             <!-- Stage requires Target (e.g. 'Elpis') and ToDir -->
