@@ -90,6 +90,7 @@ def runBuildGraph() {
     
     // Run BuildGraph
     bat """
+        chcp 65001
         "${env.ENGINE_PATH}\\Build\\BatchFiles\\RunUAT.bat" BuildGraph ^
         -Script="${env.WORKSPACE}\\ElpisClient\\BuildScripts\\BuildGraph.xml" ^
         -Target="PackageArtifacts" ^

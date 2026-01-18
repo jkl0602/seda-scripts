@@ -38,10 +38,10 @@
             <!-- Stage requires Target (e.g. 'Elpis') and ToDir -->
             <Stage Project="$(ProjectFile)" Platform="Windows" Configuration="Shipping"
                 Target="Elpis"
-                ToDir="$(GamePath)/Saved/StagedBuilds/Windows" />
+                ToDir="$(GamePath)/Saved/StagedBuilds/" />
 
             <!-- Copy to OutputDir -->
-            <Copy From="$(GamePath)/Saved/StagedBuilds/Windows/..." To="$(OutputDir)/Windows/" />
+            <Copy From="$(GamePath)/Saved/StagedBuilds/..." To="$(OutputDir)/Windows/" />
         </Node>
 
         <!-- 3. Upload Sentry Symbols -->
