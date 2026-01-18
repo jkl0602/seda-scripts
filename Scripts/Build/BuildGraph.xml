@@ -35,10 +35,7 @@
             <!-- 2. Cook: Generate Content -->
             <!-- Native BuildGraph Cook Task -->
             <Cook Project="$(ProjectFile)" Platform="Windows"
-                Arguments="-clientconfig=Shipping -serverconfig=Shipping -noP4 -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap" />
-
-            <!-- 3. Pak: Pak the cooked content -->
-            <PakFile Project="$(ProjectFile)" Platform="Windows" Configuration="Shipping" />
+                Arguments="-clientconfig=Shipping -serverconfig=Shipping -noP4 -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap -pak" />
 
             <!-- 4. Stage: Copy binaries and paks to StagingDirectory -->
             <!-- Stage requires Target (e.g. 'Elpis') and ToDir -->
