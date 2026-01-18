@@ -35,13 +35,12 @@
             <!-- 2. Cook: Generate Content -->
             <!-- Native BuildGraph Cook Task -->
             <Cook Project="$(ProjectFile)" Platform="Windows"
-                Arguments="-clientconfig=Shipping -serverconfig=Shipping -noP4 -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap -pak -buildmachine -unattended" />
+                Arguments="-clientconfig=Shipping -serverconfig=Shipping -noP4 -iterate -maps=/Game/Covenant/BG/Level/Sector/LV_Sector_01.umap -pak -buildmachine -unattended -cookonthefly" />
 
             <!-- 3. Stage: Copy binaries and paks to StagingDirectory -->
             <!-- Stage requires Target (e.g. 'Elpis') and ToDir -->
             <Stage Project="$(ProjectFile)" Platform="Windows" Configuration="Shipping"
                 Target="Elpis"
-                Arguments="-package -archive"
                 ToDir="$(GamePath)/Saved/StagedBuilds/" />
 
             <!-- Copy to OutputDir -->
