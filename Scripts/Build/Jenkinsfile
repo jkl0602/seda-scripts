@@ -109,7 +109,9 @@ def doArchive() {
     def zipPath = "${env.SHP_OUT_DIR}\\${env.BUILD_NUMBER}.zip"
     
     if (fileExists(zipPath)) {
-        archiveArtifacts artifacts: "${env.SHP_OUT_DIR}/${env.BUILD_NUMBER}.zip", fingerprint: true
+        dir(env.SHP_OUT_DIR) {
+            archiveArtifacts artifacts: "${env.BUILD_NUMBER}.zip", fingerprint: true
+        }
         
         if (params.COPY_ARTIFACT == true) {
             bat "copy \"${zipPath}\" \"${env.OUT_DRV}\\Elpis\\\""
