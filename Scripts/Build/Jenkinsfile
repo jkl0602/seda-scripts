@@ -56,7 +56,8 @@ def doCheckoutAndSetup() {
     
     // Generate version.txt
     try {
-        bat 'p4 changes -m 1 -s submitted > version.txt & type version.txt'
+        def versionFilePath = "${env.WORKSPACE}\\ElpisClient\\version.txt"
+        bat "p4 changes -m 1 -s submitted > \"${versionFilePath}\" & type \"${versionFilePath}\""
     } catch (e) {
          echo "Warning: Failed to generate version.txt: ${e}"
     }
